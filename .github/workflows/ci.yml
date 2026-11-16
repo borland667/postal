@@ -1,15 +1,25 @@
 ---
 name: CI
-on: [push]
+on:
+  push:
+  pull_request:
+
+# Cancel superseded runs of the same branch/PR instead of queueing them.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 # The image is published to the namespace of whichever repository is running
 # the workflow, so a fork needs permission to write to its own packages.
+# release-please needs pull request access to open its release PRs.
 permissions:
   contents: read
   packages: write
+  pull-requests: write
 
 jobs:
   release-please:
+    name: Release Please
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     outputs:
@@ -27,16 +37,16 @@ jobs:
     name: CI Image Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: docker/setup-buildx-action@v2
-      - uses: docker/login-action@v2
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v4
+      - uses: docker/build-push-action@v6
         with:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/postal:ci-${{ github.sha }}
@@ -50,10 +60,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -74,12 +84,12 @@ jobs:
       startsWith(github.ref, 'refs/heads/release-please-') != true &&
       startsWith(github.ref, 'refs/heads/dependabot/') != true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v2
-      - uses: docker/login-action@v2
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -104,7 +114,7 @@ jobs:
             echo "${IMAGE}:branch-${REF}" >> "$GITHUB_OUTPUT"
           fi
           echo 'EOF' >> "$GITHUB_OUTPUT"
-      - uses: docker/build-push-action@v4
+      - uses: docker/build-push-action@v6
         with:
           push: true
           tags: ${{ steps.info.outputs.tags }}
@@ -122,15 +132,15 @@ jobs:
     needs: [build, test, release-please]
     if: ${{ needs.release-please.outputs.release_created }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v2
-      - uses: docker/login-action@v2
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v4
+      - uses: docker/build-push-action@v6
         with:
           push: true
           tags: |
