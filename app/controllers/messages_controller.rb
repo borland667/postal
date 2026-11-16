@@ -90,14 +90,14 @@ class MessagesController < ApplicationController
 
   def html_raw
     override_content_security_policy_directives(
-      default_src: %w('none'),
-      script_src: %w('none'),
-      style_src: %w('unsafe-inline'),
-      img_src: %w(* data:),
-      font_src: %w(*),
-      frame_ancestors: %w('self'),
-      form_action: %w('none'),
-      base_uri: %w('none')
+      default_src: ["'none'"],
+      script_src: ["'none'"],
+      style_src: ["'unsafe-inline'"],
+      img_src: ["*", "data:"],
+      font_src: ["*"],
+      frame_ancestors: ["'self'"],
+      form_action: ["'none'"],
+      base_uri: ["'none'"]
     )
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"

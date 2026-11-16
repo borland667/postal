@@ -6,7 +6,7 @@ require "rack/test"
 RSpec.describe TrackingMiddleware do
   include Rack::Test::Methods
 
-  let(:inner_app) { ->(_env) { [200, {}, ["inner"]] } }
+  let(:inner_app) { -> (_env) { [200, {}, ["inner"]] } }
   let(:app) { described_class.new(inner_app) }
 
   let(:server) { create(:server) }

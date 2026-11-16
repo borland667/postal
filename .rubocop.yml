@@ -4,6 +4,10 @@ AllCops:
   Exclude:
     - "bin/*"
     - "db/schema.rb"
+    # Scratch documents and one-off scripts from the dev flow live in the
+    # working tree but are not part of the product; they are gitignored and
+    # must not count against the repo-wide lint gate.
+    - "TMP_FILES/**/*"
     # Fixes missing gem exception when running Rubocop on GitHub Actions.
     - "vendor/bundle/**/*"
     - lib/tasks/auto_annotate_models.rake
