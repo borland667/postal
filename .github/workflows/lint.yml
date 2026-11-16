@@ -16,7 +16,9 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.4.6
+          # Runner images only carry the newest patch release of each series,
+          # so pin the series rather than 3.4.6.
+          ruby-version: "3.4"
           bundler-cache: true
 
       - name: RuboCop
