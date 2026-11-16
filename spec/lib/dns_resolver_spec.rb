@@ -250,7 +250,7 @@ RSpec.describe DNSResolver do
     context "when an empty array of nameserver is found in resolv.conf" do
       it "raises an error" do
         allow(Resolv::DNS::Config).to receive(:parse_resolv_conf).with("/etc/resolv.conf")
-                                                             .and_return({ nameserver: [] })
+                                                                 .and_return({ nameserver: [] })
         expect { described_class.local }.to raise_error(DNSResolver::LocalResolversUnavailableError,
                                                         /could not find nameservers in/i)
       end
