@@ -91,7 +91,9 @@ jobs:
           REF="${GITHUB_REF#refs/heads/}"
           if [ -z "$REF" ]; then exit 1; fi
 
-          VER="$(git describe --tags 2>/dev/null)"
+          # A fork may carry no tags at all, in which case git describe exits
+          # 128 and the job fails before the image is built.
+          VER="$(git describe --tags 2>/dev/null || echo dev)"
           echo "version=${VER}" >> "$GITHUB_OUTPUT"
           echo "branch=${REF}" >> "$GITHUB_OUTPUT"
 
