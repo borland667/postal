@@ -2,6 +2,41 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.5.0](https://github.com/borland667/postal/compare/3.4.0...3.5.0) (2026-11-17)
+
+
+### Features
+
+* **dmarc:** parse and validate DMARC records to RFC 9989 ([#2](https://github.com/borland667/postal/issues/2)) ([9e269c2](https://github.com/borland667/postal/commit/9e269c2a827e2b9a0a1712708c64a3149f821c65))
+
+
+### Bug Fixes
+
+* **ci:** drop the unsupported release-please release type ([#8](https://github.com/borland667/postal/issues/8)) ([8692c19](https://github.com/borland667/postal/commit/8692c1939d88a442a730565487c8be8489a47a99))
+* **ci:** test pull requests, keep CI deterministic, refresh action versions ([981089d](https://github.com/borland667/postal/commit/981089d42fc118ed23ea0431139aa001fd0f1bc1))
+* **ci:** upgrade release-please to v4 ([#5](https://github.com/borland667/postal/issues/5)) ([1e58954](https://github.com/borland667/postal/commit/1e589548ed31ad30e41620b7a6172f30bd1a6140))
+
+
+### Documentation
+
+* add a pull request template ([#4](https://github.com/borland667/postal/issues/4)) ([7031234](https://github.com/borland667/postal/commit/703123439ea78dc4f0b08973680e173196012850))
+* refresh AGENTS.md bindings to the current repo state ([#6](https://github.com/borland667/postal/issues/6)) ([f110f0b](https://github.com/borland667/postal/commit/f110f0be1c040f4d7be7127e5b1ddc9d1851750b))
+
+
+### Styles
+
+* satisfy RuboCop in the rewritten DNS resolver spec ([07a6e1f](https://github.com/borland667/postal/commit/07a6e1f7f600e1d66cca8b205c759d74990a0456))
+
+
+### Miscellaneous Chores
+
+* **ci:** make CI actually run, add RuboCop and config-doc gates ([#3](https://github.com/borland667/postal/issues/3)) ([7d218d0](https://github.com/borland667/postal/commit/7d218d0914258c04110c509eb1f4e657ccef45ab))
+* **ci:** pin the lint job to the 3.4 Ruby series ([a520a20](https://github.com/borland667/postal/commit/a520a20077cf624595d8f61bc2f49660efbb23f0))
+* **ci:** publish images under the running repository owner ([cb983fa](https://github.com/borland667/postal/commit/cb983fa8c4341cc38999bf1ffcfc559336b84b6d))
+* **ci:** run RuboCop on every push and pull request ([f938155](https://github.com/borland667/postal/commit/f938155b79b5eb005d60be629b9a594e1815c6f5))
+* **ci:** tolerate a tagless fork in the branch image job ([8729355](https://github.com/borland667/postal/commit/8729355d8bc2c82c976767c89063499e795c78bd))
+* **ci:** verify generated config docs and pin the MariaDB image ([54c0134](https://github.com/borland667/postal/commit/54c01342ac57e88d94aac81eda1f02470b06577f))
+
 ## [3.4.0](https://github.com/postalserver/postal/compare/3.3.7...3.4.0) (2026-11-16)
 
 
