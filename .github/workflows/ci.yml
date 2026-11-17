@@ -82,7 +82,10 @@ jobs:
     if: >-
       startsWith(github.ref, 'refs/heads/') &&
       startsWith(github.ref, 'refs/heads/release-please-') != true &&
-      startsWith(github.ref, 'refs/heads/dependabot/') != true
+      startsWith(github.ref, 'refs/heads/dependabot/') != true &&
+      # Throwaway branches used only to prove a workflow change works should
+      # not publish a permanent branch-<name> image tag in the registry.
+      startsWith(github.ref, 'refs/heads/ci-verify-') != true
     steps:
       - uses: actions/checkout@v5
         with:
