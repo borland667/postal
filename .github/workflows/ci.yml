@@ -26,6 +26,12 @@ jobs:
     name: Release Please
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    # release-please creates a release branch (contents: write) and then the
+    # release pull request (pull-requests: write). Without contents: write the
+    # job fails with "Resource not accessible by integration".
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       release_created: ${{ steps.release-please.outputs.release_created }}
       tag_name: ${{ steps.release-please.outputs.tag_name }} # e.g. v1.0.0
