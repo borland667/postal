@@ -2,7 +2,7 @@
   "bootstrap-sha": "8c89c855a18fe00015cc14b315d4ed1cf98b59f7",
   "packages": {
     ".": {
-      "release-type": "generic",
+      "release-type": "ruby",
       "changelog-path": "CHANGELOG.md",
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
