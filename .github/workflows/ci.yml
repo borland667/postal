@@ -1,12 +1,16 @@
 ---
 name: CI
 on:
+  # Branch pushes are covered by their pull request; running both builds the
+  # same image twice and lints the same code twice.
   push:
+    branches:
+      - main
   pull_request:
 
-# Cancel superseded runs of the same branch/PR instead of queueing them.
+# One run per branch or pull request, superseded runs cancelled.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 # The image is published to the namespace of whichever repository is running
