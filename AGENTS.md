@@ -267,7 +267,7 @@ path is faster day to day and needs no image build.
 | Binding | Value |
 |---|---|
 | Mode | `worktree` — one Git worktree + branch per bead; this primary checkout (`/Users/borland/postal`, `main`) is the integration base |
-| Verify (fast) | `mise exec -- bundle exec rubocop <changed files>` — must pass before any commit. Repo-wide `rubocop` exits 1 today from 20 pre-existing offenses (`app/controllers/messages_controller.rb` ×14, `lib/postal/config_schema.rb` ×2, `spec/requests/sessions_controller_spec.rb` ×3, `spec/lib/tracking_middleware_spec.rb` ×1) — scope the gate to changed files until bead `postal-ez6` fixes them |
+| Verify (fast) | `mise exec -- bundle exec rubocop` — repo-wide, must exit 0 before any commit (the 20 pre-existing offenses were cleared by `postal-ez6`). Scratch material under `TMP_FILES/` is excluded from linting; everything else in the checkout is linted |
 | Verify (full) | `mise exec -- bundle exec rspec` — 851 examples, 0 failures, ~1m13s; needs the local MariaDB container. CI runs the same suite in Docker |
 | Task intake | Design: read the relevant `app/` or `lib/postal/` code plus `doc/config/*` for any config-surface change. Diagnose: reproduce with the matching `spec/` file, or exercise the running processes via `bin/dev` / `bin/postal` |
 | Test-first | For new behavior, write the spec in the mirrored `spec/` path first, capture red, then implement to green; add newly discovered cases before their fixes |
@@ -282,6 +282,7 @@ path is faster day to day and needs no image build.
 | Engineering | Ruby 3.4.6 / Rails 7.1.6; RuboCop + rubocop-rails; architecture boundaries as above; no declared file/module size budget |
 | Scratch | `TMP_FILES/` at the task worktree root (add `/TMP_FILES/` to `.gitignore` on first use); `log/` and `tmp/` are already gitignored |
 | TMP docs | Owner = the task's builder; categories per the dev-flow `tmp-docs.md`; archive to `TMP_FILES/archive/<category>/` on close; bead links must be repaired before deleting a worktree |
+| TMP retention | **Binding grant (owner, 2026-11-16): nothing in `TMP_FILES/` is ever pruned.** No age-based deletion, no bulk cleanup, no deletion of archived or superseded drafts. Archiving is not permission to delete. Before removing a worktree, copy its `TMP_FILES/` content to the retained root (`/Users/borland/postal/TMP_FILES/`) instead of discarding it. This applies only to `TMP_FILES/` — Hermes' own scratch cache (`~/.hermes/cache/scratch`, auto-pruned after 24h idle) is a separate mechanism; never leave a durable artifact there |
 | Release gate | release-please (`release-please-config.json`, ruby release type, tags without a `v` prefix) opens/merges the release PR from conventional commits on `main`; `publish-image` publishes `stable`/`<version>` images. **Human-triggered**: never hand-edit `CHANGELOG.md` or `.release-please-manifest.json` |
 | Tracker | Beads (primary), stealth-local — `bd init --stealth --prefix postal` (2026-11-13), `.beads/` excluded via `.git/info/exclude`; no external tracker |
 | Ticket mapping | Disabled / local-only |
@@ -352,5 +353,6 @@ command, observed result, and any check that did **not** run with the reason.
 Close with `bd close <id> --reason "..."` only when the requested acceptance is
 met; otherwise leave an executable next action.
 
-**Open items at time of writing:** `postal-4sc` (this guide), `postal-ez6` (fix
-the 20 RuboCop offenses so repo-wide lint can become a blocking gate).
+**Open items at time of writing:** `postal-0lg` (PostgreSQL dialect for the message
+DB) and `postal-fah` (DMARC support). `postal-4sc` (this guide) and `postal-ez6`
+(repo-wide RuboCop gate) are closed.

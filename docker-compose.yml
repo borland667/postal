@@ -20,7 +20,9 @@ services:
         mariadb:3306
 
   mariadb:
-    image: mariadb
+    # Pin the major version: an unpinned `latest` makes the test suite depend on
+    # whatever MariaDB Docker publishes that week.
+    image: mariadb:11.4
     restart: always
     environment:
       MARIADB_DATABASE: postal

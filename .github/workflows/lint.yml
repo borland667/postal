@@ -1,0 +1,50 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rubocop:
+    name: RuboCop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Runner images only carry the newest patch release of each series,
+          # so pin the series rather than 3.4.6.
+          ruby-version: "3.4"
+          bundler-cache: true
+
+      - name: RuboCop
+        run: bundle exec rubocop --format github
+
+  config-docs:
+    name: Config Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Runner images only carry the newest patch release of each series,
+          # so pin the series rather than 3.4.6.
+          ruby-version: "3.4"
+          bundler-cache: true
+
+      # doc/config/environment-variables.md and doc/config/yaml.yml are
+      # generated from lib/postal/config_schema.rb. Regenerating them and
+      # failing on a diff keeps the reference in sync with the schema.
+      - name: Regenerate configuration documentation
+        run: bundle exec rake postal:generate_config_docs
+      - name: Check for drift
+        run: git diff --exit-code doc/config/

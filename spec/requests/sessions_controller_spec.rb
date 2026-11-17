@@ -25,8 +25,8 @@ RSpec.describe "SessionsController", type: :request do
         location = response.location
         expect(location).not_to include("attacker.example")
         # Reject protocol-relative and absolute redirects entirely.
-        expect(location).not_to match(%r{\A//})
-        expect(location).not_to match(%r{\Ahttps?://attacker})
+        expect(location).not_to match(/\A\/\//)
+        expect(location).not_to match(/\Ahttps?:\/\/attacker/)
       end
     end
 
@@ -64,7 +64,7 @@ RSpec.describe "SessionsController", type: :request do
           password: "passw0rd"
         }
         expect(response).to have_http_status(:found)
-        expect(response.location).not_to match(%r{\A//})
+        expect(response.location).not_to match(/\A\/\//)
       end
     end
   end
