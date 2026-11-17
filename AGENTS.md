@@ -174,7 +174,7 @@ Follow the repo's established conventions (the dev-flow skill's
 `engineering-practices.md` supplies the language-independent baseline; these
 are the repo-specific bindings).
 
-**Runtime:** Ruby 3.4.6 (`.ruby-version`), Rails 7.1.6 (pinned in `Gemfile`),
+**Runtime:** Ruby 3.4.6 (`.ruby-version`), Rails 8.1.4.1 (pinned in `Gemfile`),
 Bundler 2.7.2 (`Gemfile.lock`), MySQL/MariaDB.
 
 **Style (RuboCop 1.48.1, `.rubocop.yml`)** — the rules that trip newcomers:
@@ -248,13 +248,13 @@ openssl genrsa -out config/postal/signing.key 2048
 POSTAL_CONFIG_FILE_PATH=config/postal/postal.test.yml RAILS_ENV=test \
   mise exec -- ruby bin/rails db:create db:schema:load
 
-mise exec -- bundle exec rspec                    # 851 examples, 0 failures, ~1m13s
-mise exec -- bundle exec rubocop <changed files>  # exit 0 on clean files
+mise exec -- bundle exec rspec                    # 891 examples, 0 failures, ~1m38s
+mise exec -- bundle exec rubocop                    # repo-wide; must exit 0
 ```
 
 Two traps: `db:migrate` fails because the vendored authie migration
 (`db/migrate/20161003195209_create_authie_sessions.authie.rb`) inherits bare
-`ActiveRecord::Migration`, which Rails 7.1 rejects — use `db:schema:load` (the
+`ActiveRecord::Migration`, which Rails 8 rejects — use `db:schema:load` (the
 repo's own `rake postal:update` does the same). And specs that touch DKIM or
 signing need `config/postal/signing.key` to exist.
 
@@ -268,18 +268,20 @@ path is faster day to day and needs no image build.
 |---|---|
 | Mode | `worktree` — one Git worktree + branch per bead; this primary checkout (`/Users/borland/postal`, `main`) is the integration base |
 | Verify (fast) | `mise exec -- bundle exec rubocop` — repo-wide, must exit 0 before any commit (the 20 pre-existing offenses were cleared by `postal-ez6`). Scratch material under `TMP_FILES/` is excluded from linting; everything else in the checkout is linted |
-| Verify (full) | `mise exec -- bundle exec rspec` — 851 examples, 0 failures, ~1m13s; needs the local MariaDB container. CI runs the same suite in Docker |
+| Verify (full) | `mise exec -- bundle exec rspec` — 891 examples, 0 failures, ~1m38s; needs the local MariaDB container (CI pins MariaDB 11.4). CI runs the same suite in Docker |
+| Config docs | Any change to `lib/postal/config_schema.rb` must be followed by `POSTAL_CONFIG_FILE_PATH=config/postal/postal.test.yml mise exec -- bundle exec rake postal:generate_config_docs` and the resulting `doc/config/*` diff committed; CI fails on drift |
+| Pull requests | `.github/PULL_REQUEST_TEMPLATE.md` asks for summary, why, changes, a verification table (command / result) and any check that did not run with the reason |
 | Task intake | Design: read the relevant `app/` or `lib/postal/` code plus `doc/config/*` for any config-surface change. Diagnose: reproduce with the matching `spec/` file, or exercise the running processes via `bin/dev` / `bin/postal` |
 | Test-first | For new behavior, write the spec in the mirrored `spec/` path first, capture red, then implement to green; add newly discovered cases before their fixes |
-| Hooks | None installed (no lefthook/overcommit/husky). CI: `.github/workflows/ci.yml` on every push (build Docker image → run rspec in container → branch/release image jobs); `.github/workflows/close.yml` runs actions/stale daily |
+| Hooks | None installed (no lefthook/overcommit/husky). CI: `.github/workflows/lint.yml` (RuboCop, plus a check that generated `doc/config/*` has no drift) and `.github/workflows/ci.yml` (build Docker image → rspec in container → branch/release image jobs) run on every pull request and on pushes to `main` only; `.github/workflows/close.yml` runs actions/stale daily |
 | Deterministic gates | No local gate yet. Adding one (e.g. a pre-commit RuboCop hook) is authorized work under its own bead, not an assumed baseline |
-| Integration | Base branch `main`; remote `origin` = `borland667/postal`; **no `upstream` remote** is configured, so nothing to sync from postalserver/postal; one squashed commit per bead; branch names become public Docker image tags (`ghcr.io/postalserver/postal:branch-<ref>`), so name them deliberately |
+| Integration | Base branch `main`; remote `origin` = `borland667/postal`; upstream changes arrive by merging `postalserver:main` into `main` (the fork keeps no `upstream` remote); one squashed commit per bead; branch names become Docker image tags under the running repo owner (`ghcr.io/<owner>/postal:branch-<ref>`), so name them deliberately. Throwaway CI-verification branches are named `ci-verify-*` and publish no image |
 | Base sync | `git fetch origin && git rebase origin/main` in the task worktree before landing |
 | Autonomy | `commit-push` — commit and push task branches to `origin`; never merge into `main`, tag, or deploy without separate authorization |
 | Coordinator | `none` — solo per task; independent review via a fresh session |
 | Local second opinion | Not enabled for this repo |
 | Models by role | Follow the dev-flow skill's `model-selection.md` host defaults |
-| Engineering | Ruby 3.4.6 / Rails 7.1.6; RuboCop + rubocop-rails; architecture boundaries as above; no declared file/module size budget |
+| Engineering | Ruby 3.4.6 / Rails 8.1.4.1; RuboCop + rubocop-rails; architecture boundaries as above; no declared file/module size budget |
 | Scratch | `TMP_FILES/` at the task worktree root (add `/TMP_FILES/` to `.gitignore` on first use); `log/` and `tmp/` are already gitignored |
 | TMP docs | Owner = the task's builder; categories per the dev-flow `tmp-docs.md`; archive to `TMP_FILES/archive/<category>/` on close; bead links must be repaired before deleting a worktree |
 | TMP retention | **Binding grant (owner, 2026-11-16): nothing in `TMP_FILES/` is ever pruned.** No age-based deletion, no bulk cleanup, no deletion of archived or superseded drafts. Archiving is not permission to delete. Before removing a worktree, copy its `TMP_FILES/` content to the retained root (`/Users/borland/postal/TMP_FILES/`) instead of discarding it. This applies only to `TMP_FILES/` — Hermes' own scratch cache (`~/.hermes/cache/scratch`, auto-pruned after 24h idle) is a separate mechanism; never leave a durable artifact there |
@@ -354,5 +356,7 @@ Close with `bd close <id> --reason "..."` only when the requested acceptance is
 met; otherwise leave an executable next action.
 
 **Open items at time of writing:** `postal-0lg` (PostgreSQL dialect for the message
-DB) and `postal-fah` (DMARC support). `postal-4sc` (this guide) and `postal-ez6`
-(repo-wide RuboCop gate) are closed.
+DB) and `postal-fah` (DMARC support — the RFC 9989 record parser and its specs are
+merged; the domain check and the views are still to do). `postal-4sc` (this guide),
+`postal-ez6` (repo-wide RuboCop gate), `postal-ley` (CI gates) and `postal-9pj`
+(pull request template) are closed.
