@@ -79,12 +79,13 @@ jobs:
     name: Release (branch)
     runs-on: ubuntu-latest
     needs: [build]
+    # Throwaway branches named ci-verify-* exist only to prove a workflow
+    # change works: they build and test, but must not publish a permanent
+    # branch-<name> image tag to the registry.
     if: >-
       startsWith(github.ref, 'refs/heads/') &&
       startsWith(github.ref, 'refs/heads/release-please-') != true &&
       startsWith(github.ref, 'refs/heads/dependabot/') != true &&
-      # Throwaway branches used only to prove a workflow change works should
-      # not publish a permanent branch-<name> image tag in the registry.
       startsWith(github.ref, 'refs/heads/ci-verify-') != true
     steps:
       - uses: actions/checkout@v5
