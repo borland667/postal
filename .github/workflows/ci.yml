@@ -38,10 +38,13 @@ jobs:
       version: ${{ steps.release-please.outputs.version }} # e.g. 1.0.0
       all: ${{ toJSON(steps.release-please.outputs) }}
     steps:
-      - uses: google-github-actions/release-please-action@v3
+      # v3 is deprecated (Node 20) and uses the legacy git/refs endpoint, which
+      # intermittently returns "Server Error" while backfilling commit history on
+      # a fork with no tags. v4 reads release-please-config.json directly.
+      - uses: google-github-actions/release-please-action@v4
         id: release-please
         with:
-          command: manifest
+          config-file: release-please-config.json
 
   build:
     name: CI Image Build
